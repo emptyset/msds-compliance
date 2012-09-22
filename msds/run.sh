@@ -1,0 +1,1 @@
+java -cp target/msds-1.0-SNAPSHOT.jar org.freesideatlanta.msds.App $1
