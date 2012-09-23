@@ -1,8 +1,16 @@
 package org.freesideatlanta.msds;
 
-import org.apache.commons.httpclient.*;
-import org.apache.commons.httpclient.methods.*;
-import org.apache.commons.httpclient.params.HttpMethodParams;
+//import org.apache.commons.httpclient.*;
+//import org.apache.commons.httpclient.methods.*;
+//import org.apache.commons.httpclient.params.HttpMethodParams;
+
+import org.apache.http.*;
+import org.apache.http.client.*;
+import org.apache.http.params.*;
+import org.apache.http.impl.client.*;
+import org.apache.http.client.methods.*;
+import org.apache.http.util.*;
+
 import java.util.ArrayList;
 import java.io.*;
 import java.net.*;
@@ -13,8 +21,7 @@ public class App {
 
         try {
 
-
-
+			// TODO: Refactor into a (class) method
             FileReader input = new FileReader(args[0]);
             BufferedReader bufRead = new BufferedReader(input);
 
@@ -23,44 +30,35 @@ public class App {
             ArrayList<String> chemicalList = new ArrayList<String>();    // List of all the chemicals. Line number is index + 1
 
             line = bufRead.readLine();
-            chemicalList.add(line);
-            lineCount++;
 
             while (line != null) {
-                line = bufRead.readLine();
+				System.out.println("chemical: " + line);
                 chemicalList.add(line.trim());
                 lineCount++;
+                line = bufRead.readLine();
             }
 
             bufRead.close();
 
 
 
-
-
-
-
-            HttpClient client = new HttpClient();
+            HttpClient client = new DefaultHttpClient();
             String URLhere = "http://www.commonchemistry.org/search.aspx";
 
-
             for (String a : chemicalList) {
-                PostMethod amethod = new PostMethod(URLhere);
-                amethod.addParameter("terms", a);
+                HttpPost method = new HttpPost(URLhere);
+				HttpParams params = new BasicHttpParams();
+				params.setParameter("terms", a);
 
+                HttpResponse response = client.execute(method);
+				int statusCode = response.getStatusLine().getStatusCode();
+				HttpEntity entity = response.getEntity();
+				String body = EntityUtils.toString(entity);
 
+				System.out.println("body: " + body);
 
-                int statusCode = client.executeMethod(amethod);
-
-                if (statusCode != HttpStatus.SC_OK) {
-                    System.err.println("Method failed: " + amethod.getStatusLine());
-                }
-
-
-
-                InputStream in = amethod.getResponseBodyAsStream();
-
-
+				/*
+				InputStream in = new ByteArrayInputStream(body.getBytes());
 
                 String name = a.replaceAll("\\s", "_") + ".txt";
                 OutputStream out = new FileOutputStream(name);
@@ -71,19 +69,18 @@ public class App {
                     out.write(buf, 0, len);
                 }
                 out.close();
+				*/
             }
 
-
-
+		} catch (HttpResponseException e) {
+			System.out.println(e.getMessage());
+			System.out.println(e.getStatusCode());
+            e.printStackTrace();
         } catch (ArrayIndexOutOfBoundsException e) {
             System.out.println("Usage: java ReadFile filename\n");
-
-
         } catch (IOException e) {
             System.out.println("error! u suck at this");
             e.printStackTrace();
-
-
         }
     }
 }
