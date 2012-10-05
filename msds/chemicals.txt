@@ -3,6 +3,7 @@ feric ammonium sulfate
 2,4 - Dichloro - 1 - napthol
 potassium chloride
 immersion oil
+weird shit
 silica gel
 white lithium grease
 QD electronic cleaner - hexane isomers
@@ -18,16 +19,16 @@ heli-mix (wildcat)
 gasket remover
 oil stabilizer
 motor oil
-Airtool oil - 1220-4 Amflo
+1220 4 Amflo
 interior latex paint
 odorless mineral spirits
-ortho home defense max
+ortho defense
 rubber coating
 rustoleum
 mysterious green liquid
 protective finish
-stripping gel
-StarBrite - liquid electrical tape
+citristrip
+StarBrite
 epoxy
 Por 15 - rust prevent paint
 paint thinner
@@ -36,25 +37,25 @@ super gel - 8
 zp150 (Corp 3d Printer stuff)
 arburetor cleaner
 aliphatic petroleum distillate
-R-134a with subzero
-CAS 7732-18-5
+R-134a
+7732 18 5
 copolymer
 thread cutting oil - galaxy
-polyurithane water proofer
+polyurithane
 machine oil
 glue
-googone - acetone, toluene, methanol
-insulating foam sealant
+goo gone
+foam sealant
 trisodium phosphate (TSP)
-clear Glide wire pulling lubricant
+wire pulling lubricant
 wood glue
 wood filler
-Armstrong fast setting hydrated line
+Armstrong patch
 propane
-bug spray - Off
+bug off
 Bondo fiber glass resin
-MEK - tetrahydrofuran cyclohexanoe
-garage door lube hydrocarbon solvent
+MEK
+hydrocarbon solvent
 automatic tranmission fluid
 carpet stain spot lifter
 electric tune up grease
@@ -62,7 +63,7 @@ starting fluid
 cam / assembly lube
 airtool oil
 muriatic acid
-fuel stabiler
+fuel stabilizer
 industrial strength decreaser
 wheel bearing grease
 bondo glass
