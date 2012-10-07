@@ -1,0 +1,160 @@
+For now, I'm putting in my notes from code review in this file.  I know
+you're learning, so don't get discouraged by these notes!  :)
+
+A code review is intended to be a constructive exercise, where things can
+be improved.  It's also a chance to take a small break and be able to step
+back and discuss the work up to that point.  I can't tell you how many 
+times I've solved problems by explaining my code to somebody else - and
+sometimes, the other person doesn't even need to talk.  This is so common,
+there's a term for it: Rubber duck debugging.
+[https://en.wikipedia.org/wiki/Rubber_duck_debugging]
+
+General Notes
+
+- Whitespace, Style: Try to keep line white space to a minimum.
+  I ran Jacobe [http://www.tiobe.com/index.php/content/products/jacobe/Jacobe.html]
+  against the source code, which improved the readability and set the
+  coding style standards to match the Sun standards.  I did change some
+  things that Jacobe did to reflect my style.  In the general, Jacobe
+  indented individual lines across parameters, which I prefer not to do.
+  Also specifying the --wrap=160 parameter (wrap long lines at 160 characters,
+  not the default of 80) fixes the output.
+
+- Tabs vs. Spaces: This is what is called a "Holy War" debate in the 
+  software world.  A web search will produce endless forum posts and blog
+  articles about both sides.  Generally, the problem arises from each
+  developer running a different OS, a different text editor, and/or their
+  own different configurations for tabstops.  The way we'll work around
+  this for now is we'll use Jacobe with the --wrap=160 parameter to format
+  the code.  This converts tabs to spaces, plus will also introduce you
+  to the Sun standards, so you can start to pick up on the code style 
+  "idioms" that are most common (brace style, indents, spacing, comments, etc.)
+
+- Variable Names: Avoid underscores and "numbering" variables (ex. url_seven).
+  This is just a style matter specific to Java and other 4th generation languages.
+  The general accepted format is alpha-only camel case (HttpEntity, errorText) with
+  some increasingly inconsistent rules for handling abbreviations (msdsUrl)
+  depending on which blog entry or forum post you find on the web.  This is partly
+  something you just learn over time, and varies with the language you're writing in.
+  For example, underscores are preferred in more "systems" languages like C, for 
+  largely historical reasons.  I'll point out specifics as I come across them in 
+  the code.
+
+Details, Nitpicking
+
+    lineCount++; // interates the line count although it is a useless and unneeded variable
+
+If a variable is useless and unneeded, it is always better to remove it.  Don't
+just keep things in code because somebody else wrote it.  We use source control so
+that if you did end up deleting something important, I can easily go back and recover
+it.  This is actually a very common problem, that I ran into on many occassions when 
+working with other professionals.  Often, the hang-up is that we want to be courteous
+and respectful of another person's work - so to not tread on their work, we avoid
+correcting simple problems or mistakes.
+
+There are "bad" ways to remove or rework somebody else's code.  To use a real world
+example from Freeside: we were working on the kiosk website, a site we'll display on
+the TV in the front of the space, which is intended to transition between many pages
+(just like an airport or hotel kiosk) and show various images or a map of the space, etc.
+Somebody C started the project with a web framework scaffolding, which is similar to what
+we did with the maven project - generate directories, files, etc.  Then, suddenly, 
+another developer B deleted all the generated framework code and completely re-wrote the
+app.  Although B's solution was better, he didn't give a heads up.  So, now that you know
+about branches, if C went ahead and worked in a feature branch based on his original code,
+and B checked in a completely different program, then C would be unknowingly wasting a
+lot of time working against outdated code.
+
+The "good" way to remove or rework code is to give everyone a heads up, but only if the
+scope of the change is large, or you know somebody is working that piece.
+
+    String URLhere
+
+In variable names, words like "here" or "this" or "a" or "the" should generally be avoided.
+The reason for this is that they do not add information about the content or use of the variable.
+
+Take a look at the comment that followed the variable declaration:
+
+    // this is the generic part of the URL common to every site
+
+There's a number of better variable names that come to mind right away:
+
+    baseUrl
+    queryUrl
+    msdsQueryUrl
+    
+Just to get an idea, compare how these lines read:
+
+    ... = URLhere + a;
+    ... = msdsQueryUrl + searchTerms;
+
+In the first line, you could be switching between .com, .org addresses, or perhaps switching
+directories, or something else entirely.  The second line clearly states we're hitting the 
+msds query url with some search terms.
+
+    int indexOfResults_one = body.indexOf("href=h"); // one type of valid result
+
+You're looking for the presence of specific links in the result body.  This way to do this
+is OK, but let's try to add more information.  Ultimately, you do this comparison:
+
+    if (indexOfResults_one == -1 && indexOfResults_two == -1 && indexOfResults_three == -1) {
+
+What I like to do with predicates depends on the scope of the variable, whether I choose
+to create a method or create a predicate variable.  In this case, because we don't query any
+other body result in the same way, we can use a predicate variable.  Generally, try to always
+have affirmative predicate (boolean) variables, and leverage the language's NOT operator.
+
+Later, we'll focus on making the substring match of "href=h" a little more robust, but for
+now, this might work better:
+
+    boolean inMsdsDb = (body.indexOf("href=h") != -1);
+    boolean referenceUrlDetected = ...
+
+For defining a boolean inline in this way, the outer parentheses aren't needed, but I like
+to throw them in because they highlight the whole inner expression evaluates to a predicate.
+
+So now, the if statement can read:
+
+    if (!inMsdsDb && ...
+    if (!referenceUrlDetected && ...
+
+Similarly, for the others, but try to also imply in the variable name what the predicate
+represents in a way that is concrete, not just "isFirstValidResult" - what makes this 
+substring match valid?
+
+That pretty much covers all the variable name issues...
+
+    if (isSafetyCardThere != -1) {
+        isSafetyCardThere = isSafetyCardThere - 4;
+
+The issue I see here is that you used isSafetyCardThere to initially represent a predicate
+(it's even named like a boolean would be named) and you used it as a predicate in the if.
+However, then you used it as an index again.
+
+Even though the Java compiler allows this, a good general convention is to not only limit 
+scope (the "lifetime" of the variable) but also restrict each variable to a single use.
+This reduces confusion and helps somebody trace the code.
+
+    int cardUrlIndex = body.indexOf("cards/file");
+    boolean hasSafetyCard = (cardUrlIndex != -1);
+    if (hasSafetyCard) {
+        cardUrlIndex -= 4;
+        String toBeDeleted = body.substring(0, cardUrlIndex);
+
+If I see cardUrlIndex elsewhere, I can tell it's probably an int, it's a marker into a String,
+and it has something to do with the card URL.  If you have another test that depends on the
+safety card being present, you can just run the check against hasSafetyCard.
+
+    MSDS_yucky
+
+Just replace yucky with something that conveys more meaning, like msdsHtml or unparsedMsds.
+
+In general, we can avoid most hard-coding in order to make our program a little more robust.
+Hard-coded numbers are 19 and 25 in this line:
+
+    String site = body.substring(indexOfLink + 19, indexOfLink + 25);
+
+If the urls change slightly, then our program can break easily.  We'll remove these using 
+the Jsoup parser to get at the URL text in the tag.
+
+The only other thing to consider is the exception handling.  We'll cover this together as
+we refactor the MSDS App, and discuss the pitfalls and options for making the code simpler.
