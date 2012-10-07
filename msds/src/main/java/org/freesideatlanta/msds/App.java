@@ -23,7 +23,43 @@ public class App {
 
     public static void main(String[] args) {
 
+		// -- ChemicalReader --
+		// 1. Compile a chemical list as an array object of some kind
+
+		// -- MsdsCatalog --
+		// 2. Convert a chemical name with spaces into a URL friendly parameter list
+		// 3. Execute a query on the "friendly" chemical name, and get a result
+		// 4. See if this result is valid for our purposes
+		// 5. In terms of priority: Safety Card URL is preferred, then Fisher URL, then go through remaining links
+		
+		// -- Msds --
+		// String name = msds.getChemicalName();
+		// String text = msds.getText();
+
+		// -- MsdsWriter --
+		// 6. Generate output text files in a sub-directory
+
         try {
+
+			String filename = args[0];
+			ChemicalReader reader = new ChemicalReader(filename);
+			ArrayList<String> chemicals = reader.getChemicalNames();
+
+			MsdsCatalog catalog = new MsdsCatalog();
+			MsdsWriter writer = new MsdsWriter();
+			
+			for (String chemical : chemicals) {
+				Msds msds = catalog.query(chemical);
+				String text = msds.getText();
+				writer.write(chemical, text);
+			}
+
+        } catch (ArrayIndexOutOfBoundsException e) {
+          	System.out.println("Usage: App [filename]");
+		}
+
+		/*
+		try {
 
             // TODO: Refactor into a (class) method
             FileReader input = new FileReader(args[0]);
@@ -114,7 +150,17 @@ public class App {
                 int indexOfResults_two = body.indexOf("href=f"); // another type of valid result
                 int indexOfResults_three = body.indexOf("href=mf"); // last type of valid result
 
-                if (indexOfResults_one == -1 && indexOfResults_two == -1 && indexOfResults_three == -1) {
+				boolean inJtBakerDb = (body.indexOf("jtbaker.com") != -1);
+				boolean hasSafetyCard = (body.indexOf("mf/cards/file") != -1);
+				boolean hasFileCard = (body.indexOf("href=f") != -1);
+
+				if (inJtBakerDb || hasSafetyCard || hasFileCard) {
+					// affirmative case
+				} else {
+					// negative case
+				}
+
+                if (indexOfResults_one == -1 || indexOfResults_two == -1 || indexOfResults_three == -1) {
 
                     System.out.println();
                     System.out.println();
@@ -285,6 +331,7 @@ public class App {
         } catch (IOException e) {
             System.out.println("error! u suck at this   " + e.getMessage());
             e.printStackTrace();
-        }
-    }
+        } 
+		*/	
+	}
 }
